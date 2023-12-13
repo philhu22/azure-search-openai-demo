@@ -30,6 +30,15 @@
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}/app/frontend",
+        },
+        {
+            "name": "Python:Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            }
         }
     ],
     "inputs": [

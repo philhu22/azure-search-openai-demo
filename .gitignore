@@ -147,3 +147,7 @@ node_modules
 static/
 
 data/*.md5
+data/Northwind
+data/STM32C011D6
+
+scripts/setmyenv.sh
