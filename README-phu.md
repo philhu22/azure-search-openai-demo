@@ -97,16 +97,57 @@ See
 - [Add authentication to your Teams bot](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/authentication/add-authentication?tabs=dotnet%2Cdotnet-sample#create-azure-bot-resource-registration) to clarify things that are not clear in the bot procedure above. Particularly, how to define the `OAuth Connection Settings`.
 - [Configure the Emulator for authentication](https://learn.microsoft.com/en-us/azure/bot-service/bot-service-debug-emulator?view=azure-bot-service-4.0&tabs=csharp#configure-the-emulator-for-authentication)
 
-Mmh, following the steps described in the documents above does not work. I get 401 because no autorization token is created. Let's try another approach using the following procedures that target Teams:
+Mmh, following the steps described in the documents above does not work. I get 401 because no autorization token is created. Let's try another approach using the following procedures that targets Teams:
 - [samples/bot-conversation-sso-quickstart/BotSSOSetup.md](https://github.com/OfficeDev/Microsoft-Teams-Samples/blob/main/samples/bot-conversation-sso-quickstart/BotSSOSetup.md)
 - [samples/bot-teams-authentication/csharp](https://github.com/OfficeDev/Microsoft-Teams-Samples/tree/main/samples/bot-teams-authentication/csharp)
 
 
-Lets'start with the SSO app registration in AAD:
+Let's start with the SSO app registration in AAD:
 - Name: `TxAiSearchBotAad`
+- TenantId: `ea0ac4f9-498b-4214-a5cc-41fbbcbe78fc`
 - AppId: `2055ee5f-b1bd-4a1b-9fd1-1b03cabf326d`
 - AppSecret `bot login` : `rrb8Q~4E9vi1tDqxCZfAHLxZtingdB7zcxrZjb6A`
 - Application ID URI: `api://botid-2055ee5f-b1bd-4a1b-9fd1-1b03cabf326d`
+- Scopes:`openid profile Mail.Read Mail.Send
+AccessReview.ReadWrite.All 
+User.Read 
+User.ReadBasic.All
+`
+
+Next, create the Azure Bot `txAiSearchBot`. Keep attention to:
+- Select Creation type as "Use existing app registration"
+- Use the AppId from the above step and fill in AppId.
+- Enable the Teams channel
+- We will use ngrok to work on localhost: `ngrok http 3978 --host-header="localhost:3978"`. Update the "Messaging endpoint", use the current https URL you were given by running ngrok. Append with the path /api/messages. For example: `https://33cf-185-174-184-98.ngrok-free.app/api/messages`
+- OAuth connection settings:
+  - name: `OAuthTxAiSearchBotSettings`
+  - provider: `Azure Active Directory v2` 
+  - token secret url: `api://botid-2055ee5f-b1bd-4a1b-9fd1-1b03cabf326d`
+  - tenant: `common`
+  - scope: `openid profile Mail.Read Mail.Send AccessReview.ReadWrite.All User.Read User.ReadBasic.All`
+  - click on the connection after creating it
+  - test the connection
+
+Now let's use the second link to create and run the app `TeamsAuth` at the end point. 
+- Here is my appSettings.json :
+  ```json
+  {
+    "MicrosoftAppType": "MultiTenant",
+    "MicrosoftAppId": "2055ee5f-b1bd-4a1b-9fd1-1b03cabf326d",
+    "MicrosoftAppPassword": "rrb8Q~4E9vi1tDqxCZfAHLxZtingdB7zcxrZjb6A",
+    "ConnectionName": "OAuthTxAiSearchBotSettings",
+    "UseSingleSignOn": true,
+    "MicrosoftAppTenantId": "ea0ac4f9-498b-4214-a5cc-41fbbcbe78fc"
+  }
+  ```
+- Edit `AppManifest\manifest.json` to include the appId
+  
+Continue with [checking](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant#enable-custom-teams-apps-and-turn-on-custom-app-uploading) that uploading a custom in Teams is enabled. Then add the chat in Teams: 
+- Zip the 3 files in `AppManifest` 
+- Load the zip file into Teams.
+- The chat is ready in Teams !
+
+
 
 ## Misc
 ### Tips
